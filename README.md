@@ -14,5 +14,7 @@ Get IP address from the client and add to Low DB
 ```
 
 **İsim:** isim
+
 **Numara:** numara
+
 **Domain:** [https://margaiwangara.com](https://margaiwangara.come)
