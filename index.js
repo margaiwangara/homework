@@ -41,7 +41,7 @@ const main = async () => {
     db.data.push(data);
     await db.write();
 
-    return res.render('index', { data: db.data.reverse() || [] });
+    return res.render('index', { data: db.data.reverse() || [], ip });
   });
 
   const PORT = process.env.PORT || 5000;
