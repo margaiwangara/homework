@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Show My IP | Home</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <section id="wrapper">
+      <section class="wrapper-inner">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Tarih</th>
+              <th>IP Addresi</th>
+              <th>Timezone</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if(data) { %>
+            <!---->
+            <% data.map(d => { %>
+            <tr>
+              <td><%= d.date %></td>
+              <td><%= d.ip %></td>
+              <td><% if(d.timezone) { %> <%= d.timezone %> <% } %></td>
+            </tr>
+            <% }) %>
+            <!---->
+            <% } else { %>
+            <tr>
+              <td rowspan="3" align="center">No data to display</td>
+            </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </section>
+    </section>
+  </body>
+</html>
