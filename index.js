@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { JSONFile, Low } from 'lowdb';
 import { fileURLToPath } from 'url';
 import geoip from 'geoip-lite';
+import { format } from 'date-fns';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -32,7 +33,7 @@ const main = async () => {
     // store ip address to db
     const data = {
       id: uuidv4(),
-      date: new Date().toISOString(),
+      date: format(new Date(), 'dd.MM.y kk:mm:ss'),
       ip,
       timezone: location ? location.timezone : undefined,
     };
