@@ -117,3 +117,5 @@ dist
 
 # low db
 db.json
+*.db
+*.sqlite

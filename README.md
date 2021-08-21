@@ -6,7 +6,7 @@ Bu uygulamanın anasayfası isteği yapan kullanıcının ip adresi gösteriyor
 
 **Front-end**: HTML5, CSS3, ejs
 **Back-end**: ExpressJS, NodeJS
-**Database**: LowDB
+**Database**: [NeDB](https://www.npmjs.com/package/nedb)
 **Tools**: Docker
 
 ##### Çalıştırmak için

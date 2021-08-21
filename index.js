@@ -1,56 +1,129 @@
-import express from 'express';
-import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
-import { JSONFile, Low } from 'lowdb';
-import { fileURLToPath } from 'url';
-import geoip from 'geoip-lite';
-import { format } from 'date-fns';
+const express = require('express');
+const path = require('path');
+const geoip = require('geoip-lite');
+const DataStore = require('nedb');
+const { formatToTimeZone } = require('date-fns-timezone');
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+class Server {
+  app;
+  PORT;
+  db;
+  geo;
+  defTimezone;
 
-const main = async () => {
-  const app = express();
+  constructor() {
+    this.app = express();
+    this.PORT = process.env.PORT || 5020;
+    this.defTimezone = 'America/New_York';
+    this.connectDB();
+    this.configuration();
+    this.routes();
+  }
 
-  app.use(express.urlencoded({ extended: false }));
-  app.use(express.static(path.join(__dirname, 'public')));
+  // configure server
+  configuration() {
+    this.app.use(express.urlencoded({ extended: false }));
+    this.app.use(express.static(path.join(__dirname, 'public')));
+    this.app.set('views', path.join(__dirname, 'views'));
+    this.app.set('view engine', 'ejs');
+  }
 
-  app.set('views', path.join(__dirname, 'views'));
-  app.set('view engine', 'ejs');
+  connectDB() {
+    this.db = new DataStore({
+      filename: path.resolve(__dirname, 'ipdb.db'),
+      autoload: true,
+    });
+  }
 
-  // set up LowDB
-  const adapter = new JSONFile(path.join(__dirname, 'db.json'));
-  const db = new Low(adapter);
+  routes() {
+    this.app.get('/', async (req, res) => {
+      try {
+        const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+        this.geo = geoip.lookup(ip);
 
-  // read from db
-  await db.read();
-  db.data = db.data || [];
+        // store ip address to db
+        const data = {
+          date: formatToTimeZone(new Date(), 'DD.MM.YYYY HH:mm:ss', {
+            timeZone: this.getGeo('timezone') || this.defTimezone,
+          }),
+          ip,
+          timezone: this.getGeo('timezone'),
+          region: this.getGeo('region'),
+          city: this.getGeo('city'),
+          country: this.getGeo('country'),
+          position: this.getGeo('ll'),
+        };
 
-  app.get('/', async (req, res) => {
-    // get user ip address
-    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    const location = geoip.lookup(ip);
+        const newEntry = await this.storeData(data);
+        const allEntries = await this.getData();
+        const count = await this.countData();
 
-    // store ip address to db
-    const data = {
-      id: uuidv4(),
-      date: format(new Date(), 'dd.MM.y kk:mm:ss'),
-      ip,
-      timezone: location ? location.timezone : undefined,
-    };
+        return res.render('index', { ip, data: allEntries, count });
+        // req.render('index');
+      } catch (error) {
+        console.log('error', error);
+        return res.json({
+          message: 'Oops! Something went wrong',
+        });
+      }
+    });
+  }
 
-    // add data to db
-    db.data.push(data);
-    await db.write();
+  getGeo(key) {
+    if (this.geo && this.geo[key]) {
+      return this.geo[key];
+    }
 
-    const sortedData = db.data
-      ? db.data.map((v, i, arr) => db.data[db.data.length - 1 - i])
-      : [];
+    return null;
+  }
 
-    return res.render('index', { data: sortedData, ip });
-  });
+  storeData(data) {
+    return new Promise((resolve, reject) => {
+      return this.db.insert(data, (error, result) => {
+        resolve(result);
 
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => console.log(`App running on port ${PORT}`));
-};
+        if (error) {
+          reject(error);
+        }
+      });
+    });
+  }
 
-main().catch((error) => console.log('main function error', error));
+  getData() {
+    return new Promise((resolve, reject) => {
+      return this.db
+        .find({})
+        .sort({ date: -1 })
+        .exec((error, docs) => {
+          if (error) {
+            reject(error);
+          }
+
+          resolve(docs);
+        });
+    });
+  }
+
+  countData() {
+    return new Promise((resolve, reject) => {
+      return this.db.count({}, (error, count) => {
+        resolve(count);
+
+        if (error) {
+          reject(error);
+        }
+      });
+    });
+  }
+
+  start() {
+    this.app.listen(this.PORT, () => {
+      console.log(
+        `App running in ${process.env.NODE_ENV} mode on port ${this.PORT}`,
+      );
+    });
+  }
+}
+
+const server = new Server();
+server.start();
