@@ -46,8 +46,6 @@ const main = async () => {
         createdAt: format(v.createdAt, 'dd.MM.y kk:mm:ss'),
       }));
 
-      console.log('modified', modified);
-
       return res.render('index', { ip, data: modified });
     } catch (error) {
       return res.status(500).json(error);
