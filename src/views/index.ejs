@@ -58,7 +58,7 @@
                   <% data.map((d, i) => { %>
                   <tr>
                     <th scope="row"><%= i + 1 %></th>
-                    <td><%= d.date %></td>
+                    <td><%= d.createdAt %></td>
                     <td><%= d.ip %></td>
                     <td><% if(d.timezone) { %> <%= d.timezone %> <% } %></td>
                   </tr>

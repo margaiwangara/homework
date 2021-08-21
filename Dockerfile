@@ -5,10 +5,20 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN npm install
+COPY yarn.lock ./
+
+RUN yarn
 
 COPY . .
 
-EXPOSE 5000
+# build
+RUN yarn build
 
-CMD ["npm", "start"]
+# RUN postbuild
+RUN bash ./postbuild.sh
+
+RUN ls ./dist
+
+EXPOSE 5010
+
+CMD ["yarn", "start"]
