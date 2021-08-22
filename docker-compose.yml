@@ -1,8 +1,31 @@
 version: '3.7'
 services:
-  app:
-    container_name: docker-node
+  php-apache:
+    container_name: php-apache
     restart: always
     build: .
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - mysql-db
     ports:
-      - '5500:5000'
+      - '8000:80'
+
+  mysql-db:
+    container_name: mysql-db
+    image: mysql
+    restart: always
+    env_file:
+      - config.env
+    ports:
+      - '9906:3306'
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - '8100:80'
+    restart: always
+    environment:
+      PMA_HOST: mysql-db
+    depends_on:
+      - mysql-db
