@@ -1,15 +1,15 @@
 {
-  "name": "show-my-ip",
+  "name": "ip-navigator",
   "version": "0.0.1",
   "private": true,
   "type": "module",
   "dependencies": {
-    "date-fns": "^2.23.0",
+    "date-fns-timezone": "^0.1.4",
+    "dotenv": "^10.0.0",
     "ejs": "^3.1.6",
     "express": "^4.17.1",
     "geoip-lite": "^1.4.2",
-    "lowdb": "^2.0.3",
-    "uuid": "^8.3.2"
+    "mongoose": "^5.13.7"
   },
   "scripts": {
     "start": "node index.js",

@@ -1,8 +1,8 @@
 version: '3.7'
 services:
   app:
-    container_name: docker-node
+    container_name: camara-docker-node
     restart: always
     build: .
     ports:
-      - '5500:5000'
+      - '5900:5200'

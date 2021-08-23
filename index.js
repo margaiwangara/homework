@@ -1,13 +1,14 @@
 import express from 'express';
 import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
-import { JSONFile, Low } from 'lowdb';
 import { fileURLToPath } from 'url';
 import geoip from 'geoip-lite';
-import { format } from 'date-fns';
+import ipRouter from './routes/ip.js';
+import { connectDB } from './models/index.js';
+import dotenv from 'dotenv';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+dotenv.config({ path: path.resolve(__dirname, '.env') });
 const main = async () => {
   const app = express();
 
@@ -17,39 +18,24 @@ const main = async () => {
   app.set('views', path.join(__dirname, 'views'));
   app.set('view engine', 'ejs');
 
-  // set up LowDB
-  const adapter = new JSONFile(path.join(__dirname, 'db.json'));
-  const db = new Low(adapter);
+  await connectDB();
 
-  // read from db
-  await db.read();
-  db.data = db.data || [];
+  app.use('/', ipRouter);
 
-  app.get('/', async (req, res) => {
-    // get user ip address
-    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    const location = geoip.lookup(ip);
-
-    // store ip address to db
-    const data = {
-      id: uuidv4(),
-      date: format(new Date(), 'dd.MM.y kk:mm:ss'),
-      ip,
-      timezone: location ? location.timezone : undefined,
-    };
-
-    // add data to db
-    db.data.push(data);
-    await db.write();
-
-    const sortedData = db.data
-      ? db.data.map((v, i, arr) => db.data[db.data.length - 1 - i])
-      : [];
-
-    return res.render('index', { data: sortedData, ip });
+  // grab errors
+  app.use(function (req, res, next) {
+    const error = new Error('Not Found');
+    error.status = 404;
+    next(error);
   });
 
-  const PORT = process.env.PORT || 5000;
+  app.use(function (error, req, res, next) {
+    return res.status(error.status || 500).json({
+      message: error.message || 'Oops! Something went wrong',
+    });
+  });
+
+  const PORT = process.env.PORT || 5200; // port
   app.listen(PORT, () => console.log(`App running on port ${PORT}`));
 };
 
