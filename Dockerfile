@@ -14,8 +14,12 @@ COPY . .
 # build
 RUN yarn build
 
-# RUN postbuild
-RUN bash ./postbuild.sh
+# COPY view and public folders to dist
+COPY ./src/views ./dist/views
+COPY ./src/public ./dist/public
+
+# create .env file in dist and echo into it
+RUN touch ./dist/.env && echo "NODE_ENV=production" >> ./dist/.env
 
 RUN ls ./dist
 

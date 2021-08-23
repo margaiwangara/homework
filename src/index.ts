@@ -53,7 +53,9 @@ const main = async () => {
   });
 
   const PORT = process.env.PORT || 5010;
-  app.listen(PORT, () => console.log(`App running on port ${PORT}`));
+  app.listen(PORT, () =>
+    console.log(`App running in ${process.env.NODE_ENV} mode on port ${PORT}`),
+  );
 };
 
 main().catch((error) => console.log('main function error', error));
