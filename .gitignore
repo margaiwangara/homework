@@ -116,4 +116,4 @@ dist
 .pnp.*
 
 # low db
-db.json
+ip_gosterme.db

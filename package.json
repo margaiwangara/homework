@@ -1,14 +1,12 @@
 {
-  "name": "show-my-ip",
+  "name": "ip-gosterme-sistem-yoneticiligi",
   "version": "0.0.1",
   "private": true,
-  "type": "module",
   "dependencies": {
     "date-fns": "^2.23.0",
     "ejs": "^3.1.6",
     "express": "^4.17.1",
-    "geoip-lite": "^1.4.2",
-    "lowdb": "^2.0.3",
+    "nedb": "^1.8.0",
     "uuid": "^8.3.2"
   },
   "scripts": {
@@ -21,7 +19,7 @@
   "nodemonConfig": {
     "ignore": [
       "data/*",
-      "db.json"
+      "ip_gosterme.json"
     ]
   }
 }

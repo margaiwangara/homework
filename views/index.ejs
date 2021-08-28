@@ -1,80 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <title>Table V01</title>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Show My IP | Home</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--===============================================================================================-->
+    <link rel="icon" type="image/png" href="images/icons/favicon.ico" />
+    <!--===============================================================================================-->
     <link
-      href="https://fonts.googleapis.com/css?family=Roboto:400,100,300,700"
       rel="stylesheet"
       type="text/css"
+      href="vendor/bootstrap/css/bootstrap.min.css"
     />
+    <!--===============================================================================================-->
     <link
       rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+      type="text/css"
+      href="fonts/font-awesome-4.7.0/css/font-awesome.min.css"
     />
-    <link rel="stylesheet" href="css/style.css" />
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="vendor/animate/animate.css" />
+    <!--===============================================================================================-->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="vendor/select2/select2.min.css"
+    />
+    <!--===============================================================================================-->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="vendor/perfect-scrollbar/perfect-scrollbar.css"
+    />
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="css/util.css" />
+    <link rel="stylesheet" type="text/css" href="css/main.css" />
+    <!--===============================================================================================-->
   </head>
   <body>
-    <section class="ftco-section">
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-md-6 text-center mb-2">
-            <!-- <h4>Önceden yapılan tüm istekler</h4> -->
-            <h2 class="heading-section">IP Adresiniz: <%= ip %></h2>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-12">
-            <div class="table-wrap">
-              <table class="table table-bordered table-dark table-hover">
-                <thead>
-                  <tr>
-                    <th colspan="4">
-                      <h4
-                        class="
-                          h5
-                          text-center text-success
-                          my-0
-                          font-weight-bold
-                        "
-                      >
-                        Önceden yapılan tüm istekler
-                      </h4>
-                    </th>
-                  </tr>
-                  <tr>
-                    <th>#</th>
-                    <th>Tarih</th>
-                    <th>IP Adresi</th>
-                    <th>Saat Dilimi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% if(data) { %>
-                  <!---->
-                  <% data.map((d, i) => { %>
-                  <tr>
-                    <th scope="row"><%= i + 1 %></th>
-                    <td><%= d.date %></td>
-                    <td><%= d.ip %></td>
-                    <td><% if(d.timezone) { %> <%= d.timezone %> <% } %></td>
-                  </tr>
-                  <% }) %>
-                  <!---->
-                  <% } else { %>
-                  <tr>
-                    <td rowspan="3" align="center">No data to display</td>
-                  </tr>
-                  <% } %>
-                </tbody>
-              </table>
-            </div>
+    <div class="limiter">
+      <div class="container-table100">
+        <div class="wrap-table100">
+          <div class="table100">
+            <table>
+              <thead>
+                <tr class="table100-head">
+                  <th class="column1">#</th>
+                  <th class="column2">Tarih</th>
+                  <th class="column2">IP Adresi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="3" class="text-center font-weight-bold text-lg">
+                    Benim IP Adresim: <%= ip %>
+                  </td>
+                </tr>
+                <tr>
+                  <td
+                    colspan="3"
+                    class="text-center font-weight-bold text-danger"
+                  >
+                    Önceden Yapılan İstekler
+                  </td>
+                </tr>
+                <% if(veri) { %>
+                <!---->
+                <% veri.map((v, i) => { %>
+                <tr>
+                  <th class="column1"><%= i + 1 %></th>
+                  <td class="column2"><%= v.tarih %></td>
+                  <td class="column3"><%= v.ip %></td>
+                </tr>
+                <% }) %>
+                <!---->
+                <% } else { %>
+                <tr>
+                  <td colspan="3" align="center">Veriler Yok!</td>
+                </tr>
+                <% } %>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
-    </section>
+    </div>
+
+    <!--===============================================================================================-->
+    <script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="vendor/bootstrap/js/popper.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="vendor/select2/select2.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="js/main.js"></script>
   </body>
 </html>

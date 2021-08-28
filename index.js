@@ -1,14 +1,45 @@
-import express from 'express';
-import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
-import { JSONFile, Low } from 'lowdb';
-import { fileURLToPath } from 'url';
-import geoip from 'geoip-lite';
-import { format } from 'date-fns';
+const express = require('express');
+const path = require('path');
+const { v4: uuidv4 } = require('uuid');
+const { format } = require('date-fns');
+const DataStore = require('nedb');
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+async function getIP(req, res) {
+  try {
+    const { db } = req;
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
-const main = async () => {
+    const tarih = format(new Date(), 'dd.MM.y kk:mm:ss');
+
+    const giris = {
+      id: uuidv4(),
+      ip,
+      tarih,
+    };
+
+    const yeniVeri = await setData(giris, db);
+    const veri = await getData(db);
+
+    return res.render('index', { veri, ip });
+  } catch (error) {
+    return res.json({
+      hata: error.message || 'Bir hata oluşturuldu!',
+    });
+  }
+}
+
+const middleware = (req, res, next) => {
+  const db = new DataStore({
+    filename: path.resolve(__dirname, 'ip_gosterme.db'),
+    autoload: true,
+  });
+
+  req.db = db;
+
+  next();
+};
+
+async function server() {
   const app = express();
 
   app.use(express.urlencoded({ extended: false }));
@@ -17,40 +48,37 @@ const main = async () => {
   app.set('views', path.join(__dirname, 'views'));
   app.set('view engine', 'ejs');
 
-  // set up LowDB
-  const adapter = new JSONFile(path.join(__dirname, 'db.json'));
-  const db = new Low(adapter);
+  app.get('/', middleware, getIP);
 
-  // read from db
-  await db.read();
-  db.data = db.data || [];
+  const PORT = process.env.PORT || 9000;
+  app.listen(PORT, () => console.log(`Uygulama port: ${PORT}`));
+}
 
-  app.get('/', async (req, res) => {
-    // get user ip address
-    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    const location = geoip.lookup(ip);
+const setData = (giris, db) => {
+  return new Promise((resolve, reject) => {
+    return db.insert(giris, (error, doc) => {
+      if (error) {
+        reject(error);
+      }
 
-    // store ip address to db
-    const data = {
-      id: uuidv4(),
-      date: format(new Date(), 'dd.MM.y kk:mm:ss'),
-      ip,
-      timezone: location ? location.timezone : undefined,
-    };
-
-    // add data to db
-    db.data.push(data);
-    await db.write();
-
-    const sortedData = db.data
-      ? db.data.map((v, i, arr) => db.data[db.data.length - 1 - i])
-      : [];
-
-    return res.render('index', { data: sortedData, ip });
+      resolve(doc);
+    });
   });
-
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => console.log(`App running on port ${PORT}`));
 };
 
-main().catch((error) => console.log('main function error', error));
+const getData = (db) => {
+  return new Promise((resolve, reject) => {
+    return db
+      .find({})
+      .sort({ tarih: -1 })
+      .exec((error, docs) => {
+        if (error) {
+          reject(error);
+        }
+
+        resolve(docs);
+      });
+  });
+};
+
+server().catch((error) => console.log('Temel Fonksiyon Hatasi', error));
